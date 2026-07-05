@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>乐器教学主页</title>
+<style>
+:root{
+  --bg:#f8f9fa;
+  --glass: rgba(255,255,255,0.25);
+  --border:rgba(255,255,255,0.35);
+  --text:#111;
+  --text2:#444;
+  --accent:#6366f1;
+  --safe-top:env(safe-area-inset-top);
+  --safe-bottom:env(safe-area-inset-bottom);
+}
+.dark{
+  --bg:#0f1118;
+  --glass: rgba(255,255,255,0.12);
+  --border:rgba(255,255,255,0.18);
+  --text:#eee;
+  --text2:#bbb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:background 0.3s ease,color 0.3s ease;
+  overflow:hidden;
+}
+.start-logo-box{
+  position:fixed;
+  inset:0;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  transition: all 1.2s ease-in-out;
+}
+.start-logo-box.hide{
+  opacity:0;
+  pointer-events:none;
+}
+.start-logo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.glass{
+  background:var(--glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border:1px solid var(--border);
+  box-shadow:0 8px 32px rgba(0,0,0,0.08);
+  border-radius:18px;
+}
+.nav-top{
+  position:fixed;top:var(--safe-top);left:0;right:0;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;z-index:999;
+}
+.nav-side{
+  position:fixed;top:calc(60px + var(--safe-top));left:0;width:220px;bottom:0;
+  padding:16px;z-index:998;overflow:auto;
+}
+.nav-horizontal{
+  position:fixed;top:calc(60px + var(--safe-top));left:0;right:0;height:50px;
+  display:flex;align-items:center;gap:8px;padding:0 15px;overflow-x:auto;
+  z-index:998;
+}
+.nav-item{
+  display:block;padding:12px 14px;margin-bottom:8px;border-radius:12px;
+  color:var(--text2);text-decoration:none;white-space:nowrap;
+}
+.nav-horizontal .nav-item{margin:0;}
+.nav-item:hover,.nav-item.active{
+  background:rgba(99,102,241,0.12);color:var(--accent);
+}
+.main{
+  margin-left:220px;margin-top:calc(60px + var(--safe-top));
+  margin-bottom:var(--safe-bottom);padding:20px;
+  height:calc(100vh - 60px);overflow:auto;
+  transition:margin-left 0.3s ease;
+}
+.main-full{margin-left:0;}
+.main-top-nav{margin-top:calc(110px + var(--safe-top));}
+.btn-switch-nav,.btn-theme{
+  padding:6px 12px;border-radius:10px;border:none;background:var(--glass);color:var(--text);
+  font-size:14px;
+}
+.video-full-wrap{
+  width:100%;height:calc(100vh - 130px);overflow:hidden;position:relative;
+}
+.video-scroll-box{
+  height:100%;transition:transform 0.4s ease-out;
+}
+.video-full-item{
+  width:100%;height:100vh;display:flex;align-items:center;justify-content:center;
+}
+.video-full-item img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.price-card{padding:16px;margin-bottom:16px;}
+.num-control{display:flex;align-items:center;gap:10px;margin:10px 0;}
+.num-control button{
+  width:36px;height:36px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:18px;
+}
+.num-control input{
+  width:60px;text-align:center;border:1px solid var(--border);background:transparent;color:var(--text);
+  padding:4px;
+}
+.btn-consult{
+  margin-top:12px;padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;width:100%;
+}
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  display:none;align-items:center;justify-content:center;z-index:9999;
+  padding:15px;
+}
+.modal-content{width:100%;max-width:420px;padding:20px;}
+.form-group{margin-bottom:12px;}
+.form-group label{display:block;margin-bottom:4px;color:var(--text2);font-size:14px;}
+.form-group input{
+  width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--text);outline:none;
+}
+.btn-submit{
+  width:100%;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;margin-top:8px;
+}
+.version{text-align:center;padding:20px;cursor:pointer;font-size:16px;}
+@media (max-width:768px){
+  .nav-side{width:180px;}
+  .main{margin-left:180px;}
+  .video-full-wrap{height:calc(100vh - 100px);}
+}
+@media (max-width:480px){
+  .nav-side{width:0px;padding:0;overflow:hidden;}
+  .main{margin-left:0;}
+}
+</style>
+</head>
+<body>
+<div class="start-logo-box" id="startLogoBox">
+  <img class="start-logo" src="8cb6bf4469527f9a2b66b0a6868a9f3d.jpeg" alt="LOGO">
+</div>
+<nav class="nav-top glass">
+  <div>
+    <button class="btn-switch-nav" id="switchNavType">切换导航样式</button>
+  </div>
+  <div style="font-weight:bold;font-size:18px;">乐器教学主页</div>
+  <div>
+    <button class="btn-theme" id="themeBtn">深浅切换</button>
+  </div>
+</nav>
+<aside class="nav-side glass" id="sideNav">
+  <a href="#home" class="nav-item active" data-page="home">首页</a>
+  <a href="#price" class="nav-item" data-page="price">课程价格预估</a>
+  <a href="#show" class="nav-item" data-page="show">演出时间</a>
+  <a href="#mine" class="nav-item" data-page="mine">我的</a>
+  <a href="#about" class="nav-item" data-page="about">关于</a>
+</aside>
+<div class="nav-horizontal glass" id="topNav" style="display:none;">
+  <a href="#home" class="nav-item active" data-page="home">首页</a>
+  <a href="#price" class="nav-item" data-page="price">课程价格预估</a>
+  <a href="#show" class="nav-item" data-page="show">演出时间</a>
+  <a href="#mine" class="nav-item" data-page="mine">我的</a>
+  <a href="#about" class="nav-item" data-page="about">关于</a>
+</div>
+<main class="main" id="mainBox">
+  <section id="page-home" class="page">
+    <div class="video-full-wrap">
+      <div class="video-scroll-box" id="videoScroll">
+        <div class="video-full-item"><img src="img1.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img2.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img3.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img4.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img5.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img6.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img7.JPG" alt="展示图"></div>
+        <div class="video-full-item"><img src="img8.JPG" alt="展示图"></div>
+      </div>
+    </div>
+  </section>
+  <section id="page-price" class="page" style="display:none;">
+    <h2>课程费用预估（全品类统一：200元/节｜一对一｜45分钟/节）</h2>
+    <div class="price-card glass">
+      <h3>木吉他课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>尤克里里课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>电吉他课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>电贝斯课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>声乐课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>钢琴课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+  </section>
+  <section id="page-show" class="page" style="display:none;">
+    <h2>演出时间安排</h2>
+    <div class="glass" style="padding:20px;">
+      <p style="font-size:16px;line-height:2;">
+        🏫 公开演出时间：<strong>每年寒假、暑假统一举办汇报演出</strong><br>
+        📅 具体演出日期、地点、报名通道后续另行通知确定
+      </p>
+    </div>
+  </section>
+  <section id="page-mine" class="page" style="display:none;">
+    <h2>个人中心</h2>
+    <div class="glass" style="padding:20px;">
+      <div id="auth-forms">
+        <div class="form-group">
+          <label>绑定邮箱</label>
+          <input type="email" id="regEmail">
+        </div>
+        <div class="form-group">
+          <label>设置用户名</label>
+          <input type="text" id="username">
+        </div>
+        <div class="form-group">
+          <label>设置密码</label>
+          <input type="password" id="pwd">
+        </div>
+        <button class="btn-submit" id="registerBtn">注册账号</button>
+        <p style="text-align:center;margin:12px 0;color:var(--text2);">
+          已有账号？<a href="#" id="loginSwitch" style="color:var(--accent);">立即登录</a>
+        </p>
+        <div id="loginBox" style="display:none;">
+          <div class="form-group">
+            <label>用户名</label>
+            <input type="text" id="loginUser">
+          </div>
+          <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="loginPwd">
+          </div>
+          <button class="btn-submit" id="loginBtn">登录账号</button>
+        </div>
+      </div>
+      <div id="userInfo" style="display:none;">
+        <p style="font-size:16px;">欢迎你，<span id="showUser"></span></p>
+        <p style="font-size:16px;margin-top:8px;">绑定邮箱：<span id="showEmail"></span></p>
+        <p style="font-size:18px;margin-top:12px;color:#22c55e;">剩余课时：<strong id="showLesson">0</strong> 节</p>
+        <button class="btn-submit" id="logoutBtn" style="margin-top:15px;">退出登录</button>
+      </div>
+    </div>
+  </section>
+  <section id="page-about" class="page" style="display:none;">
+    <h2>关于本站</h2>
+    <div class="glass version" id="versionClick">
+      当前系统版本：1.0.0.7 beta 5<br>
+      网页发布时间：2026年5月16日 18点整
+    </div>
+  </section>
+</main>
+
+<!-- 管理员登录弹窗 -->
+<div class="modal" id="adminLoginModal">
+  <div class="modal-content glass">
+    <h3>管理员登录</h3>
+    <div class="form-group">
+      <label>管理员账号</label>
+      <input type="text" id="adminName">
+    </div>
+    <div class="form-group">
+      <label>管理员密码</label>
+      <input type="password" id="adminPwd">
+    </div>
+    <button class="btn-submit" id="adminLoginBtn">登录管理后台</button>
+    <button class="btn-submit" style="background:#666;margin-top:8px;" onclick="document.getElementById('adminLoginModal').style.display='none'">关闭</button>
+  </div>
+</div>
+
+<!-- 管理员课时操作面板 -->
+<div class="modal" id="adminPanelModal">
+  <div class="modal-content glass">
+    <h3>学员课时管理</h3>
+    <div class="form-group">
+      <label>学员用户名</label>
+      <input type="text" id="searchUserInput">
+    </div>
+    <button class="btn-submit" id="searchUserBtn">查询学员</button>
+    <div id="userInfoBox" style="margin:10px 0;"></div>
+    <div class="form-group">
+      <label>修改剩余课时</label>
+      <input type="number" id="editLessonNum" min="0">
+    </div>
+    <button class="btn-submit" id="saveLessonBtn">保存课时修改</button>
+    <button class="btn-submit" style="background:#666;margin-top:8px;" onclick="document.getElementById('adminPanelModal').style.display='none'">关闭</button>
+  </div>
+</div>
+
+<script>
+// ===================== 修改此处为你的Worker后端地址 =====================
+const BACKEND_URL = "https://xxx.workers.dev";
+// =======================================================================
+let currentEditUser = "";
+window.onload = function(){
+  setTimeout(()=>{
+    document.getElementById('startLogoBox').classList.add('hide');
+  },1500);
+}
+const themeToggle = document.getElementById('themeBtn');
+themeToggle.addEventListener('click',()=>{
+  document.documentElement.classList.toggle('dark');
+})
+let isTopNav = false;
+const switchNavBtn = document.getElementById('switchNavType');
+const sideNavDom = document.getElementById('sideNav');
+const topNavDom = document.getElementById('topNav');
+const mainDom = document.getElementById('mainBox');
+switchNavBtn.addEventListener('click',()=>{
+  isTopNav = !isTopNav;
+  if(isTopNav){
+    sideNavDom.style.display = 'none';
+    topNavDom.style.display = 'flex';
+    mainDom.classList.add('main-full','main-top-nav');
+  }else{
+    sideNavDom.style.display = 'block';
+    topNavDom.style.display = 'none';
+    mainDom.classList.remove('main-full','main-top-nav');
+  }
+})
+const allNavItems = document.querySelectorAll('.nav-item');
+const allPages = document.querySelectorAll('.page');
+allNavItems.forEach(item=>{
+  item.addEventListener('click',e=>{
+    e.preventDefault();
+    allNavItems.forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    let targetPage = item.dataset.page;
+    allPages.forEach(p=>p.style.display='none');
+    document.getElementById('page-'+targetPage).style.display='block';
+  })
+})
+const videoScroll = document.getElementById('videoScroll');
+const videoItems = document.querySelectorAll('.video-full-item');
+let nowIndex = 0;
+const itemHeight = window.innerHeight;
+let startY = 0, moveY = 0;
+videoScroll.addEventListener('touchstart',e=>{
+  startY = e.touches[0].clientY;
+})
+videoScroll.addEventListener('touchmove',e=>{
+  moveY = e.touches[0].clientY;
+})
+videoScroll.addEventListener('touchend',()=>{
+  let diff = startY - moveY;
+  if(Math.abs(diff) < 80) return;
+  if(diff > 0 && nowIndex < videoItems.length-1){
+    nowIndex++;
+  }else if(diff < 0 && nowIndex > 0){
+    nowIndex--;
+  }
+  videoScroll.style.transform = `translateY(-${nowIndex * itemHeight}px)`;
+})
+const priceCardList = document.querySelectorAll('.price-card');
+priceCardList.forEach(card=>{
+  let minusBtn = card.querySelector('.minus');
+  let plusBtn = card.querySelector('.plus');
+  let numInput = card.querySelector('.num-input');
+  let unitPrice = Number(card.querySelector('.unit-price').innerText);
+  let totalShow = card.querySelector('.total-price');
+  function calcPrice(){
+    let num = parseInt(numInput.value) || 1;
+    if(num < 1) num = 1;
+    numInput.value = num;
+    totalShow.innerText = unitPrice * num;
+  }
+  minusBtn.onclick = ()=>{numInput.value--;calcPrice()};
+  plusBtn.onclick = ()=>{numInput.value++;calcPrice()};
+  numInput.addEventListener('input',calcPrice);
+  calcPrice();
+})
+
+// 学员注册登录逻辑
+const regEmail = document.getElementById('regEmail');
+const username = document.getElementById('username');
+const pwd = document.getElementById('pwd');
+const registerBtn = document.getElementById('registerBtn');
+const loginSwitch = document.getElementById('loginSwitch');
+const loginBox = document.getElementById('loginBox');
+const loginUser = document.getElementById('loginUser');
+const loginPwd = document.getElementById('loginPwd');
+const loginBtn = document.getElementById('loginBtn');
+const authForms = document.getElementById('auth-forms');
+const userInfo = document.getElementById('userInfo');
+const showUser = document.getElementById('showUser');
+const showEmail = document.getElementById('showEmail');
+const showLesson = document.getElementById('showLesson');
+const logoutBtn = document.getElementById('logoutBtn');
+
+let localUser = JSON.parse(localStorage.getItem("musicUser"));
+if(localUser){
+  authForms.style.display = 'none';
+  userInfo.style.display = 'block';
+  showUser.innerText = localUser.name;
+  showEmail.innerText = localUser.email;
+  showLesson.innerText = localUser.lesson;
+}
+
+// 注册
+registerBtn.onclick = async ()=>{
+  const mail = regEmail.value.trim();
+  const un = username.value.trim();
+  const pw = pwd.value.trim();
+  if(!mail||!un||!pw) return alert("邮箱、用户名、密码不能为空");
+  const res = await fetch(`${BACKEND_URL}/register`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username:un,pwd:pw,email:mail})
+  });
+  const data = await res.json();
+  alert(data.msg);
+}
+
+// 切换登录表单
+loginSwitch.onclick = e=>{
+  e.preventDefault();
+  loginBox.style.display = loginBox.style.display === "none" ? "block" : "none";
+}
+
+// 登录
+loginBtn.onclick = async ()=>{
+  const un = loginUser.value.trim();
+  const pw = loginPwd.value.trim();
+  if(!un||!pw) return alert("用户名密码不能为空");
+  const res = await fetch(`${BACKEND_URL}/login`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({username:un,pwd})
+  });
+  const data = await res.json();
+  if(data.msg !== "登录成功") return alert(data.msg);
+  localStorage.setItem("musicUser",JSON.stringify({
+    name:un,
+    email:data.email,
+    lesson:data.lesson
+  }));
+  authForms.style.display = 'none';
+  userInfo.style.display = 'block';
+  showUser.innerText = un;
+  showEmail.innerText = data.email;
+  showLesson.innerText = data.lesson;
+}
+
+// 退出登录
+logoutBtn.onclick = ()=>{
+  localStorage.removeItem("musicUser");
+  authForms.style.display = 'block';
+  userInfo.style.display = 'none';
+  regEmail.value = "";
+  username.value = "";
+  pwd.value = "";
+  loginUser.value = "";
+  loginPwd.value = "";
+  loginBox.style.display = "none";
+}
+
+// 管理员隐藏入口：连续点击版本7次
+const versionDom = document.getElementById('versionClick');
+let clickTimes = 0;
+let clickTimer = null;
+versionDom.addEventListener('click',()=>{
+  clickTimes++;
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(()=>clickTimes=0,2000);
+  if(clickTimes >=7){
+    clickTimes = 0;
+    document.getElementById('adminLoginModal').style.display = 'flex';
+  }
+})
+
+// 管理员登录
+document.getElementById('adminLoginBtn').onclick = async ()=>{
+  const name = document.getElementById('adminName').value.trim();
+  const pw = document.getElementById('adminPwd').value.trim();
+  const res = await fetch(`${BACKEND_URL}/admin/login`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({admin_name:name,admin_pwd:pw})
+  })
+  const data = await res.json();
+  if(data.msg === "管理员登录成功"){
+    document.getElementById('adminLoginModal').style.display = "none";
+    document.getElementById('adminPanelModal').style.display = "flex";
+  }else{
+    alert(data.msg);
+  }
+}
+
+// 查询学员
+document.getElementById('searchUserBtn').onclick = async ()=>{
+  const un = document.getElementById('searchUserInput').value.trim();
+  currentEditUser = un;
+  const res = await fetch(`${BACKEND_URL}/admin/getUser`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({targetUser:un})
+  })
+  const data = await res.json();
+  if(data.msg){
+    document.getElementById('userInfoBox').innerText = data.msg;
+  }else{
+    document.getElementById('userInfoBox').innerHTML = `
+      用户名：${data.data.username}<br>
+      绑定邮箱：${data.data.email}<br>
+      当前课时：${data.data.lesson}
+    `;
+    document.getElementById('editLessonNum').value = data.data.lesson;
+  }
+}
+
+// 保存修改课时
+document.getElementById('saveLessonBtn').onclick = async ()=>{
+  const num = Number(document.getElementById('editLessonNum').value);
+  const res = await fetch(`${BACKEND_URL}/admin/editLesson`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({targetUser:currentEditUser,newLessonNum:num})
+  })
+  const data = await res.json();
+  alert(data.msg);
+}
+
+// 点击弹窗空白关闭
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click',e=>{
+    if(e.target === m) m.style.display = 'none';
+  })
+})
+</script>
+</body>
+</html>
