@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>乐器教学主页</title>
+<style>
+:root{
+  --bg:#f8f9fa;
+  --glass: rgba(255,255,255,0.25);
+  --border:rgba(255,255,255,0.35);
+  --text:#111;
+  --text2:#444;
+  --accent:#6366f1;
+  --safe-top:env(safe-area-inset-top);
+  --safe-bottom:env(safe-area-inset-bottom);
+}
+.dark{
+  --bg:#0f1118;
+  --glass: rgba(255,255,255,0.12);
+  --border:rgba(255,255,255,0.18);
+  --text:#eee;
+  --text2:#bbb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:background 0.3s ease,color 0.3s ease;
+  overflow:hidden;
+}
+/* 开机LOGO全屏显示 */
+.start-logo-box{
+  position:fixed;
+  inset:0;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  transition: all 1.2s ease-in-out;
+}
+.start-logo-box.hide{
+  opacity:0;
+  pointer-events:none;
+}
+/* LOGO全屏铺满 */
+.start-logo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.glass{
+  background:var(--glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border:1px solid var(--border);
+  box-shadow:0 8px 32px rgba(0,0,0,0.08);
+  border-radius:18px;
+}
+.nav-top{
+  position:fixed;top:var(--safe-top);left:0;right:0;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;z-index:999;
+}
+.nav-side{
+  position:fixed;top:calc(60px + var(--safe-top));left:0;width:220px;bottom:0;
+  padding:16px;z-index:998;overflow:auto;
+}
+.nav-horizontal{
+  position:fixed;top:calc(60px + var(--safe-top));left:0;right:0;height:50px;
+  display:flex;align-items:center;gap:8px;padding:0 15px;overflow-x:auto;
+  z-index:998;
+}
+.nav-item{
+  display:block;padding:12px 14px;margin-bottom:8px;border-radius:12px;
+  color:var(--text2);text-decoration:none;white-space:nowrap;
+}
+.nav-horizontal .nav-item{margin:0;}
+.nav-item:hover,.nav-item.active{
+  background:rgba(99,102,241,0.12);color:var(--accent);
+}
+.main{
+  margin-left:220px;margin-top:calc(60px + var(--safe-top));
+  margin-bottom:var(--safe-bottom);padding:20px;
+  height:calc(100vh - 60px);overflow:auto;
+  transition:margin-left 0.3s ease;
+}
+.main-full{margin-left:0;}
+.main-top-nav{margin-top:calc(110px + var(--safe-top));}
+.btn-switch-nav,.btn-theme{
+  padding:6px 12px;border-radius:10px;border:none;background:var(--glass);color:var(--text);
+  font-size:14px;
+}
+.video-full-wrap{
+  width:100%;height:calc(100vh - 130px);overflow:hidden;position:relative;
+}
+.video-scroll-box{
+  height:100%;transition:transform 0.4s ease-out;
+}
+.video-full-item{
+  width:100%;height:100vh;display:flex;align-items:center;justify-content:center;
+}
+/* 替换为图片样式 */
+.video-full-item img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.price-card{padding:16px;margin-bottom:16px;}
+.num-control{display:flex;align-items:center;gap:10px;margin:10px 0;}
+.num-control button{
+  width:36px;height:36px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:18px;
+}
+.num-control input{
+  width:60px;text-align:center;border:1px solid var(--border);background:transparent;color:var(--text);
+  padding:4px;
+}
+.btn-consult{
+  margin-top:12px;padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;width:100%;
+}
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  display:none;align-items:center;justify-content:center;z-index:9999;
+  padding:15px;
+}
+.modal-content{width:100%;max-width:420px;padding:20px;}
+.form-group{margin-bottom:12px;}
+.form-group label{display:block;margin-bottom:4px;color:var(--text2);font-size:14px;}
+.form-group input{
+  width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--text);outline:none;
+}
+.btn-submit{
+  width:100%;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;margin-top:8px;
+}
+.version{text-align:center;padding:20px;cursor:pointer;font-size:16px;}
+.source-modal .modal-content{max-width:850px;}
+pre{max-height:60vh;overflow:auto;padding:12px;background:rgba(0,0,0,0.2);border-radius:10px;font-size:12px;}
+.page{width:100%;}
+h2{margin-bottom:15px;font-size:20px;}
+.join-btn{
+  display:block;width:100%;margin-top:20px;padding:12px;border-radius:10px;
+  border:none;background:#22c55e;color:#fff;font-size:15px;cursor:pointer;
+}
+@media (max-width:768px){
+  .nav-side{width:180px;}
+  .main{margin-left:180px;}
+  .video-full-wrap{height:calc(100vh - 100px);}
+}
+@media (max-width:480px){
+  .nav-side{width:0px;padding:0;overflow:hidden;}
+  .main{margin-left:0;}
+}
+
+/* ========== 激活向导独立样式（新增，不冲突原有页面） ========== */
+.wizard-container {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+}
+.wizard-step {
+    display: none;
+    width: min(90%, 520px);
+    text-align: center;
+    color: #fff;
+}
+.wizard-step.active {
+    display: block;
+}
+.wizard-title {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+.wizard-desc {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 30px;
+}
+.wizard-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    margin-bottom: 16px;
+    background: rgba(255,255,255,0.85);
+    color:#222;
+}
+.wizard-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #fff;
+    color: #667eea;
+    transition: 0.2s;
+}
+.wizard-btn:hover {
+    opacity: 0.9;
+}
+</style>
+</head>
+<body>
+<!-- 激活向导 仅首次打开显示 -->
+<div class="wizard-container" id="activateWizard">
+    <!-- 步骤1 欢迎 -->
+    <div class="wizard-step active" data-step="1">
+        <h2 class="wizard-title">欢迎使用乐器教学主页</h2>
+        <p class="wizard-desc">此网页由 HBS Developer 开发</p>
+        <button class="wizard-btn next-step">开始设置</button>
+    </div>
+    <!-- 步骤2 地区语言 -->
+    <div class="wizard-step" data-step="2">
+        <h2 class="wizard-title">选择国家与地区、语言</h2>
+        <select id="countrySelect" class="wizard-input">
+            <option value="CN">中国</option>
+            <option value="US">美国</option>
+            <option value="GB">英国</option>
+            <option value="JP">日本</option>
+            <option value="KR">韩国</option>
+            <option value="FR">法国</option>
+            <option value="DE">德国</option>
+        </select>
+        <select id="langSelect" class="wizard-input">
+            <option value="zh">简体中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+        </select>
+        <button class="wizard-btn next-step">下一步</button>
+    </div>
+    <!-- 步骤3 出生日期 -->
+    <div class="wizard-step" data-step="3">
+        <h2 class="wizard-title">输入出生日期</h2>
+        <input type="date" class="wizard-input" id="birthDay">
+        <button class="wizard-btn next-step">下一步</button>
+    </div>
+    <!-- 步骤4 手机型号 -->
+    <div class="wizard-step" data-step="4">
+        <h2 class="wizard-title">输入你的手机型号</h2>
+        <input type="text" class="wizard-input" id="phoneModel" placeholder="例如：红米6 / iPhone 15">
+        <button class="wizard-btn next-step">下一步</button>
+    </div>
+    <!-- 步骤5 手机号【无任何校验】 -->
+    <div class="wizard-step" data-step="5">
+        <h2 class="wizard-title">填写联系手机号</h2>
+        <input type="tel" class="wizard-input" id="phoneNum" placeholder="11位中国大陆手机号码">
+        <button class="wizard-btn next-step">下一步</button>
+    </div>
+    <!-- 步骤6 注册/登录 -->
+    <div class="wizard-step" data-step="6">
+        <h2 class="wizard-title">注册或登录账号</h2>
+        <input type="text" class="wizard-input" id="userName" placeholder="用户名">
+        <input type="password" class="wizard-input" id="userPwd" placeholder="密码（不少于9位数字+混合字符）">
+        <button class="wizard-btn next-step">确认登录/注册</button>
+    </div>
+    <!-- 步骤7 加载提示 -->
+    <div class="wizard-step" data-step="7">
+        <h2 class="wizard-title">稍等一下</h2>
+    </div>
+    <!-- 步骤8 过渡提示 -->
+    <div class="wizard-step" data-step="8">
+        <h2 class="wizard-title">好东西马上就要来了</h2>
+    </div>
+    <!-- 步骤9 机型欢迎 -->
+    <div class="wizard-step" data-step="9">
+        <h2 class="wizard-title" id="deviceTip"></h2>
+        <button class="wizard-btn next-step">进入主页</button>
+    </div>
+</div>
+
+<!-- 开机LOGO启动页 改图只改这里src路径 已设为全屏 -->
+<div class="start-logo-box" id="startLogoBox">
+  <img class="start-logo" src="8cb6bf4469527f9a2b66b0a6868a9f3d.jpeg" alt="LOGO">
+</div>
+<nav class="nav-top glass">
+  <div>
+    <button class="btn-switch-nav" id="switchNavType">切换导航样式</button>
+  </div>
+  <div style="font-weight:bold;font-size:18px;">乐器教学主页</div>
+  <div>
+    <button class="btn-theme" id="themeBtn">深浅切换</button>
+  </div>
+</nav>
+<aside class="nav-side glass" id="sideNav">
+  <a href="#home" class="nav-item active" data-page="home">首页</a>
+  <a href="#price" class="nav-item" data-page="price">课程价格预估</a>
+  <a href="#show" class="nav-item" data-page="show">演出时间</a>
+  <a href="#mine" class="nav-item" data-page="mine">我的</a>
+  <a href="#about" class="nav-item" data-page="about">关于</a>
+</aside>
+<div class="nav-horizontal glass" id="topNav" style="display:none;">
+  <a href="#home" class="nav-item active" data-page="home">首页</a>
+  <a href="#price" class="nav-item" data-page="price">课程价格预估</a>
+  <a href="#show" class="nav-item" data-page="show">演出时间</a>
+  <a href="#mine" class="nav-item" data-page="mine">我的</a>
+  <a href="#about" class="nav-item" data-page="about">关于</a>
+</div>
+<main class="main" id="mainBox">
+  <section id="page-home" class="page">
+    <div class="video-full-wrap">
+      <div class="video-scroll-box" id="videoScroll">
+        <!-- 全部换成图片 命名img1.jpg img2.jpg...依次放入同文件夹 -->
+        <div class="video-full-item">
+          <img src="img1.JPG" alt="展示图">
+        </div>
+        <div class="video-full-item">
+          <img src="img2.JPG" alt="展示图">
+        </div>
+        <div class="video-full-item">
+          <img src="img3.JPG" alt="展示图">
+        </div>
+        <div class="video-full-item">
+          <img src="img4.JPG" alt="展示图">
+        </div>
+        <div class="video-full-item">
+          <img src="img5.JPG" alt="展示图">
+        </div>
+        <div class="video-full-item">
+          <img src="img6.JPG" alt="展示图">
+        </div>
+         <div class="video-full-item">
+          <img src="img7.JPG" alt="展示图">
+        </div>
+        <div class="video-full-item">
+          <img src="img8.JPG" alt="展示图">
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="page-price" class="page" style="display:none;">
+    <h2>课程费用预估（全品类统一：200元/节｜一对一｜45分钟/节）</h2>
+    <div class="price-card glass">
+      <h3>木吉他课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>尤克里里课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>电吉他课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>电贝斯课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>声乐课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+    <div class="price-card glass">
+      <h3>钢琴课程</h3>
+      <p>单节课价格：<span class="unit-price">200</span> 元/节（一对一·45分钟）</p>
+      <div class="num-control">
+        <button class="minus">-</button>
+        <input type="number" class="num-input" value="1" min="1">
+        <button class="plus">+</button>
+      </div>
+      <p>预估总价：<strong class="total-price">200</strong> 元</p>
+      <button class="btn-consult">详细咨询按这里</button>
+    </div>
+  </section>
+  <section id="page-show" class="page" style="display:none;">
+    <h2>演出时间安排</h2>
+    <div class="glass" style="padding:20px;">
+      <p style="font-size:16px;line-height:2;">
+        🏫 公开演出时间：<strong>每年寒假、暑假统一举办汇报演出</strong><br>
+        📅 具体演出日期、地点、报名通道后续另行通知确定
+      </p>
+    </div>
+  </section>
+  <section id="page-mine" class="page" style="display:none;">
+    <h2>个人中心</h2>
+    <div class="glass" style="padding:20px;">
+      <div id="auth-forms">
+        <div class="form-group">
+          <label>设置用户名</label>
+          <input type="text" id="username">
+        </div>
+        <div class="form-group">
+          <label>设置密码（不少于8位，大小写+数字组合）</label>
+          <input type="password" id="pwd">
+        </div>
+        <button class="btn-submit" id="registerBtn">注册账号</button>
+        <p style="text-align:center;margin:12px 0;color:var(--text2);">
+          已有账号？<a href="#" id="loginSwitch" style="color:var(--accent);">立即登录</a>
+        </p>
+        <button class="btn-submit" id="loginBtn" style="display:none;">登录账号</button>
+      </div>
+      <div id="userInfo" style="display:none;">
+        <p style="font-size:16px;">欢迎你，<span id="showUser"></span></p>
+        <p style="margin-top:8px;">绑定手机号：<span id="bindPhone"></span></p>
+        <p>设备型号：<span id="bindDevice"></span></p>
+        <button class="btn-submit" id="logoutBtn" style="margin-top:15px;">退出登录</button>
+      </div>
+    </div>
+  </section>
+  <section id="page-about" class="page" style="display:none;">
+    <h2>关于本站</h2>
+    <div class="glass version" id="versionClick">
+      当前系统版本：1.0.0.7 beta 5<br>
+      网页发布时间：2026年5月16日 18点整
+    </div>
+    <button class="join-btn" id="joinUsBtn">加入我们 开发此网页</button>
+  </section>
+</main>
+<div class="modal" id="consultModal">
+  <div class="modal-content glass">
+    <h3>课程详细咨询</h3>
+    <p style="margin:10px 0;font-size:16px;">授课老师：种星星的人</p>
+    <p style="margin:10px 0;font-size:16px;">咨询微信号：wanggw0821（昵称：种星星的人）</p>
+    <p style="margin:10px 0;color:#999;">欢迎随时咨询课程、课时、上课安排！</p>
+    <button class="btn-submit" id="closeConsult">关闭弹窗</button>
+  </div>
+</div>
+<div class="modal" id="adminModal">
+  <div class="modal-content glass">
+    <h3>管理员验证入口</h3>
+    <div class="form-group">
+      <label>管理员账号</label>
+      <input type="text" id="adminUser">
+    </div>
+    <div class="form-group">
+      <label>管理员密码</label>
+      <input type="password" id="adminPwd">
+    </div>
+    <button class="btn-submit" id="adminLoginBtn">确认登录</button>
+  </div>
+</div>
+<div class="modal source-modal" id="sourceModal">
+  <div class="modal-content glass">
+    <h3>网页完整源码</h3>
+    <pre id="sourceText"></pre>
+    <button class="btn-submit" id="closeSourceBtn">关闭查看</button>
+  </div>
+</div>
+<div class="modal" id="joinModal">
+  <div class="modal-content glass">
+    <h3>加入开发团队</h3>
+    <p style="margin:15px 0;font-size:15px;line-height:1.8;">
+      如果您想加入我们，需要先提交个人申请<br>
+      请将个人申请提交至邮箱：<br>
+      <strong>moss_0415@qq.com</strong>
+    </p>
+    <button class="btn-submit" id="closeJoinBtn">我知道了</button>
+  </div>
+</div>
+<script>
+// ========== 激活向导逻辑（一次性激活，本地存储标记） ==========
+let userActivateData = {
+    country: "",
+    lang: "",
+    birth: "",
+    phoneModel: "",
+    phone: "",
+    username: "",
+    pwd: ""
+};
+let currentStep = 1;
+const maxStep = 9;
+const activateWizard = document.getElementById('activateWizard');
+
+// 判断是否已激活，已激活直接隐藏激活层
+if(localStorage.getItem("webActivateFlag") === "activated"){
+    activateWizard.style.display = "none";
+    // 读取激活保存的信息填充个人中心
+    const saveAct = JSON.parse(localStorage.getItem("activateData") || "{}");
+    if(saveAct.username){
+        document.getElementById("auth-forms").style.display = 'none';
+        document.getElementById("userInfo").style.display = 'block';
+        document.getElementById("showUser").innerText = saveAct.username;
+        document.getElementById("bindPhone").innerText = saveAct.phone || "未填写";
+        document.getElementById("bindDevice").innerText = saveAct.phoneModel || "未填写";
+    }
+}
+
+// 切换激活步骤
+function changeWizardStep(num) {
+    document.querySelectorAll(".wizard-step").forEach(item => {
+        item.classList.remove("active");
+    });
+    document.querySelector(`.wizard-step[data-step="${num}"]`).classList.add("active");
+    currentStep = num;
+}
+
+// 下一步按钮监听
+document.querySelectorAll(".next-step").forEach(btn => {
+    btn.addEventListener("click", function () {
+        switch (currentStep) {
+            case 1:
+                changeWizardStep(2);
+                break;
+            case 2:
+                userActivateData.country = document.getElementById("countrySelect").value;
+                userActivateData.lang = document.getElementById("langSelect").value;
+                changeWizardStep(3);
+                break;
+            case 3:
+                userActivateData.birth = document.getElementById("birthDay").value;
+                changeWizardStep(4);
+                break;
+            case 4:
+                userActivateData.phoneModel = document.getElementById("phoneModel").value;
+                changeWizardStep(5);
+                break;
+            case 5:
+                const phoneNumRaw = document.getElementById('phoneNum').value;
+                userActivateData.phone = phoneNumRaw;
+                changeWizardStep(6);
+                break;
+            case 6:
+                const un = document.getElementById("userName").value;
+                const pw = document.getElementById("userPwd").value;
+                if(pw.length <9){
+                    alert("密码必须不少于9位混合字符");
+                    return;
+                }
+                userActivateData.username = un;
+                userActivateData.pwd = pw;
+                changeWizardStep(7);
+                setTimeout(()=>{
+                    changeWizardStep(8);
+                },1200);
+                break;
+            case 8:
+                const model = userActivateData.phoneModel.toLowerCase();
+                let tipText = "";
+                if(model.includes("iphone")){
+                    tipText = "尊贵的Apple用户欢迎使用";
+                }else{
+                    tipText = "尊贵的安卓用户欢迎使用";
+                }
+                document.getElementById("deviceTip").innerText = tipText;
+                changeWizardStep(9);
+                break;
+            case 9:
+                // 激活完成，写入本地标记，永久不再弹出
+                localStorage.setItem("webActivateFlag", "activated");
+                localStorage.setItem("activateData", JSON.stringify(userActivateData));
+                activateWizard.style.display = "none";
+                // 自动填充个人中心信息
+                document.getElementById("auth-forms").style.display = 'none';
+                document.getElementById("userInfo").style.display = 'block';
+                document.getElementById("showUser").innerText = userActivateData.username;
+                document.getElementById("bindPhone").innerText = userActivateData.phone;
+                document.getElementById("bindDevice").innerText = userActivateData.phoneModel;
+                break;
+        }
+    })
+});
+
+// ==================== 原有页面全部JS逻辑（无修改，完整保留） ====================
+// 开机LOGO动画
+window.onload = function(){
+  setTimeout(()=>{
+    document.getElementById('startLogoBox').classList.add('hide');
+  },1500);
+}
+const themeToggle = document.getElementById('themeBtn');
+themeToggle.addEventListener('click',()=>{
+  document.documentElement.classList.toggle('dark');
+})
+let isTopNav = false;
+const switchNavBtn = document.getElementById('switchNavType');
+const sideNavDom = document.getElementById('sideNav');
+const topNavDom = document.getElementById('topNav');
+const mainDom = document.getElementById('mainBox');
+switchNavBtn.addEventListener('click',()=>{
+  isTopNav = !isTopNav;
+  if(isTopNav){
+    sideNavDom.style.display = 'none';
+    topNavDom.style.display = 'flex';
+    mainDom.classList.add('main-full','main-top-nav');
+  }else{
+    sideNavDom.style.display = 'block';
+    topNavDom.style.display = 'none';
+    mainDom.classList.remove('main-full','main-top-nav');
+  }
+})
+const allNavItems = document.querySelectorAll('.nav-item');
+const allPages = document.querySelectorAll('.page');
+allNavItems.forEach(item=>{
+  item.addEventListener('click',e=>{
+    e.preventDefault();
+    allNavItems.forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    let targetPage = item.dataset.page;
+    allPages.forEach(p=>p.style.display='none');
+    document.getElementById('page-'+targetPage).style.display='block';
+  })
+})
+const videoScroll = document.getElementById('videoScroll');
+const videoItems = document.querySelectorAll('.video-full-item');
+let nowIndex = 0;
+const itemHeight = window.innerHeight;
+let startY = 0, moveY = 0;
+videoScroll.addEventListener('touchstart',e=>{
+  startY = e.touches[0].clientY;
+})
+videoScroll.addEventListener('touchmove',e=>{
+  moveY = e.touches[0].clientY;
+})
+videoScroll.addEventListener('touchend',()=>{
+  let diff = startY - moveY;
+  if(Math.abs(diff) < 80) return;
+  if(diff > 0 && nowIndex < videoItems.length-1){
+    nowIndex++;
+  }else if(diff < 0 && nowIndex > 0){
+    nowIndex--;
+  }
+  videoScroll.style.transform = `translateY(-${nowIndex * itemHeight}px)`;
+})
+const priceCardList = document.querySelectorAll('.price-card');
+priceCardList.forEach(card=>{
+  let minusBtn = card.querySelector('.minus');
+  let plusBtn = card.querySelector('.plus');
+  let numInput = card.querySelector('.num-input');
+  let unitPrice = Number(card.querySelector('.unit-price').innerText);
+  let totalShow = card.querySelector('.total-price');
+  function calcPrice(){
+    let num = parseInt(numInput.value) || 1;
+    if(num < 1) num = 1;
+    numInput.value = num;
+    totalShow.innerText = unitPrice * num;
+  }
+  minusBtn.onclick = ()=>{numInput.value--;calcPrice()};
+  plusBtn.onclick = ()=>{numInput.value++;calcPrice()};
+  numInput.addEventListener('input',calcPrice);
+  calcPrice();
+  card.querySelector('.btn-consult').onclick = ()=>{
+    document.getElementById('consultModal').style.display = 'flex';
+  }
+})
+document.getElementById('closeConsult').onclick = ()=>{
+  document.getElementById('consultModal').style.display = 'none';
+}
+//加入我们弹窗
+document.getElementById('joinUsBtn').addEventListener('click',()=>{
+  document.getElementById('joinModal').style.display = 'flex';
+})
+document.getElementById('closeJoinBtn').addEventListener('click',()=>{
+  document.getElementById('joinModal').style.display = 'none';
+})
+const regBtn = document.getElementById('registerBtn');
+const logBtn = document.getElementById('loginBtn');
+const switchLog = document.getElementById('loginSwitch');
+const authBox = document.getElementById('auth-forms');
+const userBox = document.getElementById('userInfo');
+const showUserTxt = document.getElementById('showUser');
+const outBtn = document.getElementById('logoutBtn');
+const userInp = document.getElementById('username');
+const pwdInp = document.getElementById('pwd');
+let localUser = localStorage.getItem("guitarTeacherUser");
+if(localUser){
+  authBox.style.display = 'none';
+  userBox.style.display = 'block';
+  showUserTxt.innerText = localUser;
+}
+const pwdRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+regBtn.onclick = ()=>{
+  let un = userInp.value.trim();
+  let pw = pwdInp.value.trim();
+  if(!pwdRule.test(pw)) return alert("密码必须8位以上，包含大小写字母+数字！");
+  localStorage.setItem("guitarTeacherUser",un);
+  authBox.style.display = 'none';
+  userBox.style.display = 'block';
+  showUserTxt.innerText = un;
+}
+switchLog.onclick = (e)=>{
+  e.preventDefault();
+  regBtn.style.display = 'none';
+  logBtn.style.display = 'block';
+  switchLog.innerText = "去注册";
+}
+logBtn.onclick = ()=>{
+  let un = userInp.value.trim();
+  let pw = pwdInp.value.trim();
+  if(!pwdRule.test(pw)) return alert("密码格式错误！");
+  localStorage.setItem("guitarTeacherUser",un);
+  authBox.style.display = 'none';
+  userBox.style.display = 'block';
+  showUserTxt.innerText = un;
+}
+outBtn.onclick = ()=>{
+  localStorage.removeItem("guitarTeacherUser");
+  authBox.style.display = 'block';
+  userBox.style.display = 'none';
+  userInp.value = "";
+  pwdInp.value = "";
+  regBtn.style.display = 'block';
+  logBtn.style.display = 'none';
+  switchLog.innerText = "立即登录";
+}
+const versionDom = document.getElementById('versionClick');
+let clickTimes = 0;
+let clickTimer = null;
+versionDom.addEventListener('click',()=>{
+  clickTimes++;
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(()=>clickTimes=0,2000);
+  if(clickTimes >=7){
+    clickTimes = 0;
+    document.getElementById('adminModal').style.display = 'flex';
+  }
+})
+document.getElementById('adminLoginBtn').onclick = ()=>{
+  let adUser = document.getElementById('adminUser').value.trim();
+  let adPwd = document.getElementById('adminPwd').value.trim();
+  if(adUser === "MOSS" && adPwd === "205807"){
+    document.getElementById('adminModal').style.display = 'none';
+    document.getElementById('sourceText').innerText = document.documentElement.outerHTML;
+    document.getElementById('sourceModal').style.display = 'flex';
+  }else{
+    alert("账号或密码错误！");
+  }
+}
+document.getElementById('closeSourceBtn').onclick = ()=>{
+  document.getElementById('sourceModal').style.display = 'none';
+}
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click',e=>{
+    if(e.target === m) m.style.display = 'none';
+  })
+})
+</script>
+</body>
+</html>
